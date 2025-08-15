@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('files/bg.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1170px;
+            width: 100%;
+            min-height: 60vh;
+            margin: 40px 16px;
+            padding: 32px 24px;
+            box-shadow: none;
+            background: none;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        .responsive-img {
+            max-width: 1105px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .img-btn-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            gap: 24px;
+            flex-direction: column;
+            min-height: 800px;
+            position: relative;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .right-btn {
+            padding: 16px 28px;
+            font-size: 1.1rem;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .right-btn:hover {
+            background: #34a853;
+        }
+
+        @media (max-width: 1170px) {
+            .img-btn-row {
+                min-height: 600px;
+            }
+            .button-row {
+                position: relative;
+                transform: none;
+                left: 0;
+            }
+            .bottom-btn-row {
+                position: relative;
+                transform: none;
+                left: 0;
+            }
+            .return-btn {
+                position: relative;
+                transform: none;
+                left: 0;
+                bottom: 0;
+            }
+            .right-btn {
+                width: 100%;
+                max-width: 350px;
+            }
+            #option-video {
+                width: 100%;
+                max-width: 95vw;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px 4px;
+                margin: 16px 2px;
+            }
+        }
+
+        .video-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .video-overlay.active {
+            display: flex;
+        }
+        #option-video {
+            background: #000;
+            border-radius: 12px;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.3);
+        }
+        .close-video {
+            position: absolute;
+            top: 32px;
+            right: 48px;
+            font-size: 2.5rem;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .fade-stack {
+            position: relative;
+        }
+        .media-stack {
+            position: relative;
+            width: 100%;
+            max-width: 1105px;
+            min-width: 260px;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0 auto;
+        }
+        .media-stack img,
+        .media-stack video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
+            background: transparent !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            outline: none;
+            margin: 0;
+            padding: 0;
+        }
+        .fade-img {
+            opacity: 1;
+            z-index: 1;
+        }
+        .fade-img.hide {
+            opacity: 0;
+        }
+        .fade-video {
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .fade-video.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .fade-stop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
+            background: transparent !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            outline: none;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            z-index: 3;
+        }
+        .fade-stop.show {
+            opacity: 1;
+        }
+        .fade-ogn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
+            background: transparent !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            outline: none;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            z-index: 4;
+        }
+        .fade-ogn.show {
+            opacity: 1;
+        }
+        .fade-las {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
+            background: transparent !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            outline: none;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            z-index: 2;
+        }
+        .fade-las.show {
+            opacity: 1;
+        }
+        .bottom-btn-row {
+            width: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            margin: 32px auto 24px auto;
+            flex-wrap: wrap;
+            max-width: 900px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        .bottom-btn-row.show {
+            display: flex;
+        }
+        .bottom-btn {
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin: 4px 0;
+        }
+        .bottom-btn:hover {
+            background: #34a853;
+        }
+        .bottom-btn.active {
+            background: #34a853;
+        }
+        .bottom-btn.active:hover {
+            background: #2d9249;
+        }
+        .return-btn {
+            width: 100%;
+            max-width: 200px;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin: 24px auto 0 auto;
+            display: none;
+            position: absolute;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        .return-btn:hover {
+            background: #dc3545;
+        }
+        .return-btn.show {
+            display: block;
+        }
+        .fade-img,
+        .fade-video,
+        .fade-stop,
+        .fade-ogn {
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="img-btn-row fade-stack">
+            <div class="button-row">
+                <button class="right-btn" id="show-video-btn-a">Zobacz opcje A</button>
+                <button class="right-btn" id="show-video-btn-b">Zobacz opcje B</button>
+            </div>
+            <div class="media-stack">
+                <img src="files/START.webp" alt="Small House" class="responsive-img fade-img" id="static-img" />
+                <video id="option-video" class="responsive-img fade-video" width="800" playsinline tabindex="-1">
+                    <source src="files/sA.webm" type="video/webm">
+                    Your browser does not support the video tag.
+                </video>
+                <video id="option-video-b" class="responsive-img fade-video" width="800" playsinline tabindex="-1">
+                    <source src="files/sB.webm" type="video/webm">
+                    Your browser does not support the video tag.
+                </video>
+                <video id="reverse-video" class="responsive-img fade-video" width="800" playsinline tabindex="-1">
+                    <source src="files/sA_reverse.webm" type="video/webm">
+                    Your browser does not support the video tag.
+                </video>
+                <img src="files/stopA.webp" alt="Stop Image" class="responsive-img fade-stop" id="stop-img" />
+                <img src="files/stopB.webp" alt="Stop Image B" class="responsive-img fade-stop" id="stop-img-b" />
+                <img src="files/ogn.webp" alt="Ognisko Image" class="responsive-img fade-ogn" id="ogn-img" />
+                <img src="files/las.webp" alt="Las Image" class="responsive-img fade-las" id="las-img" />
+                <img src="files/sciezka.webp" alt="Sciezka Image" class="responsive-img fade-ogn" id="sciezka-img" />
+                <img src="files/staw.webp" alt="Staw Image" class="responsive-img fade-ogn" id="staw-img" />
+                <img src="files/gorka.webp" alt="Gorka Image" class="responsive-img fade-ogn" id="gorka-img" />
+            </div>
+        </div>
+        <div class="bottom-btn-row">
+            <button class="bottom-btn">ognisko</button>
+            <button class="bottom-btn">las</button>
+            <button class="bottom-btn">sciezka</button>
+            <button class="bottom-btn">staw</button>
+            <button class="bottom-btn">gorka</button>
+        </div>
+        <div class="bottom-btn-row" id="bottom-btn-row-b">
+            <button class="bottom-btn">silownia</button>
+            <button class="bottom-btn">kuchnia polowa</button>
+            <button class="bottom-btn">sole</button>
+        </div>
+        <button class="return-btn" id="return-btn">powrót</button>
+    </div>
+</body>
+<script>
+  const showBtnA = document.getElementById('show-video-btn-a');
+  const showBtnB = document.getElementById('show-video-btn-b');
+  const videoA = document.getElementById('option-video');
+  const videoB = document.getElementById('option-video-b');
+  const img = document.getElementById('static-img');
+  const btnA = document.getElementById('show-video-btn-a');
+  const btnB = document.getElementById('show-video-btn-b');
+  const stopImg = document.getElementById('stop-img');
+  const stopImgB = document.getElementById('stop-img-b');
+  const ognImg = document.getElementById('ogn-img');
+  const lasImg = document.getElementById('las-img');
+  const sciezkaImg = document.getElementById('sciezka-img');
+  const stawImg = document.getElementById('staw-img');
+  const gorkaImg = document.getElementById('gorka-img');
+  const bottomBtnRow = document.querySelector('.bottom-btn-row');
+  const bottomBtnRowB = document.getElementById('bottom-btn-row-b');
+  const returnBtn = document.getElementById('return-btn');
+  const ogniskoBtn = document.querySelector('.bottom-btn');
+  const lasBtn = document.querySelectorAll('.bottom-btn')[1];
+  const sciezkaBtn = document.querySelectorAll('.bottom-btn')[2];
+  const stawBtn = document.querySelectorAll('.bottom-btn')[3];
+  const gorkaBtn = document.querySelectorAll('.bottom-btn')[4];
+  const silowniaBtn = document.querySelectorAll('#bottom-btn-row-b .bottom-btn')[0];
+  const kuchniaBtn = document.querySelectorAll('#bottom-btn-row-b .bottom-btn')[1];
+  const soleBtn = document.querySelectorAll('#bottom-btn-row-b .bottom-btn')[2];
+
+  // Function to fade out an element
+  const fadeOut = (element) => {
+    return new Promise(resolve => {
+      element.style.opacity = '0';
+      setTimeout(resolve, 250); // Slower transition
+    });
+  };
+
+  // Function to fade in an element
+  const fadeIn = (element) => {
+    return new Promise(resolve => {
+      element.style.opacity = '1';
+      setTimeout(resolve, 250);
+    });
+  };
+
+  showBtnA.addEventListener('click', () => {
+    img.classList.add('hide');
+    videoA.classList.add('show');
+    videoA.currentTime = 0;
+    videoA.play();
+    bottomBtnRow.classList.remove('show');
+    bottomBtnRowB.classList.remove('show');
+    returnBtn.classList.remove('show');
+    btnA.style.display = 'none';
+    btnB.style.display = 'none';
+  });
+
+  showBtnB.addEventListener('click', () => {
+    img.classList.add('hide');
+    videoB.classList.add('show');
+    videoB.currentTime = 0;
+    videoB.play();
+    bottomBtnRow.classList.remove('show');
+    bottomBtnRowB.classList.remove('show');
+    returnBtn.classList.remove('show');
+    btnA.style.display = 'none';
+    btnB.style.display = 'none';
+  });
+
+  videoA.addEventListener('ended', () => {
+    videoA.classList.remove('show');
+    stopImg.style.opacity = '1';
+    bottomBtnRow.classList.add('show');
+    returnBtn.classList.add('show');
+  });
+
+  videoB.addEventListener('ended', () => {
+    videoB.classList.remove('show');
+    stopImgB.style.opacity = '1';
+    bottomBtnRowB.classList.add('show');
+    returnBtn.classList.add('show');
+  });
+
+  // Toggle functionality for ognisko button
+  ogniskoBtn.addEventListener('click', () => {
+    const isActive = ogniskoBtn.classList.toggle('active');
+    ognImg.style.opacity = isActive ? '1' : '0';
+  });
+
+  // Toggle functionality for las button
+  lasBtn.addEventListener('click', () => {
+    const isActive = lasBtn.classList.toggle('active');
+    lasImg.style.opacity = isActive ? '1' : '0';
+  });
+
+  // Toggle functionality for sciezka button
+  sciezkaBtn.addEventListener('click', () => {
+    const isActive = sciezkaBtn.classList.toggle('active');
+    sciezkaImg.style.opacity = isActive ? '1' : '0';
+  });
+
+  // Toggle functionality for staw button
+  stawBtn.addEventListener('click', () => {
+    const isActive = stawBtn.classList.toggle('active');
+    stawImg.style.opacity = isActive ? '1' : '0';
+  });
+
+  // Toggle functionality for gorka button
+  gorkaBtn.addEventListener('click', () => {
+    const isActive = gorkaBtn.classList.toggle('active');
+    gorkaImg.style.opacity = isActive ? '1' : '0';
+  });
+
+  // Return button functionality with sequential fade-out
+  returnBtn.addEventListener('click', async () => {
+    // Disable the return button during transition
+    returnBtn.disabled = true;
+    
+    // Reset all buttons to blue
+    ogniskoBtn.classList.remove('active');
+    lasBtn.classList.remove('active');
+    sciezkaBtn.classList.remove('active');
+    stawBtn.classList.remove('active');
+    gorkaBtn.classList.remove('active');
+    silowniaBtn.classList.remove('active');
+    kuchniaBtn.classList.remove('active');
+    soleBtn.classList.remove('active');
+
+    // Fade out images one by one
+    if (gorkaImg.style.opacity === '1') await fadeOut(gorkaImg);
+    if (stawImg.style.opacity === '1') await fadeOut(stawImg);
+    if (sciezkaImg.style.opacity === '1') await fadeOut(sciezkaImg);
+    if (lasImg.style.opacity === '1') await fadeOut(lasImg);
+    if (ognImg.style.opacity === '1') await fadeOut(ognImg);
+    
+    // Fade out stop images
+    await fadeOut(stopImg);
+    await fadeOut(stopImgB);
+    
+    // Show initial state
+    img.classList.remove('hide');
+    btnA.style.display = 'block';
+    btnB.style.display = 'block';
+    bottomBtnRow.classList.remove('show');
+    bottomBtnRowB.classList.remove('show');
+    returnBtn.classList.remove('show');
+    returnBtn.disabled = false;
+  });
+</script>
+</html> 
